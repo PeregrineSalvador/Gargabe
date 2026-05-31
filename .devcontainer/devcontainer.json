@@ -1,0 +1,71 @@
+{
+    "name": "garbage-detection-container",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": ".."
+    },
+    // 1. 项目根目录挂载（默认已配置，保持不变）
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "workspaceFolder": "/workspace",
+    
+    // 2. 挂载所有外设依赖与用户目录
+    "mounts": [
+        "source=/home/yutou,target=/home/yutou,type=bind,consistency=cached",
+        // 挂载整个设备目录（获取摄像头、USB等外设）
+        "source=/dev,target=/dev,type=bind",
+        // 挂载 X11 图形界面套接字（用于显示 cv2.imshow 窗口）
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+    ],
+    
+    // 3. 核心：添加特权模式、NVIDIA 显卡支持、GUI 和网络主机模式
+    "runArgs": [
+        "--privileged",                    // 开启特权模式，自由读写所有挂载的外设
+        "--net=host",                      // 主机网络模式，保证 X11 权限互通和网络无缝切换
+        "--gpus=all",                      // 如果使用的是 NVIDIA Container Toolkit 2.0+
+        // "--runtime=nvidia",             // 注释：如果上面 --gpus 不起作用，可解开这行切换老版运行时
+        "--dns=8.8.8.8",
+        "--dns=8.8.4.4"
+    ],
+    
+    // 4. 注入环境变量（让容器知道要把画面显示到本地哪个屏幕上）
+    "containerEnv": {
+        "DISPLAY": "${localEnv:DISPLAY}"   // 动态捕获你宿主机当前的 DISPLAY 变量
+    },
+    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "josetr.cmake-language-support-vscode",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "cschlosser.doxdocgen",
+                "augustocdias.tasks-shell-input",
+                "vadimcn.vscode-lldb",
+                "llvm-vs-code-extensions.lldb-dap",
+                "ms-azuretools.vscode-containers",
+                "mhutchie.git-graph",
+                "donjayamanne.githistory",
+                "njpwerner.autodocstring"
+            ]
+        },
+        "jetbrains": {
+            "extensions": []
+        }
+    },
+    "remoteUser": "root",
+    "forwardPorts": [8888, 6006],
+    "portsAttributes": {
+        "8888": {
+            "label": "Jupyter",
+            "onAutoForward": "notify"
+        },
+        "6006": {
+            "label": "TensorBoard",
+            "onAutoForward": "notify"
+        }
+    }
+}

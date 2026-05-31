@@ -2,3 +2,40 @@ datasets/
 trashnet/
 yolov8n.pt
 yolo26n.pt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 模型权重和训练结果
+runs/
+*.pt
+*.onnx
+**/*.weights
+
+# 日志和临时文件
+*.log
+*.tmp
+.pytest_cache/
+.coverage
+htmlcov/
